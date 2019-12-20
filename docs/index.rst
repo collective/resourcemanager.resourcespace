@@ -1,0 +1,5 @@
+=============================
+resourcemanager.resourcespace
+=============================
+
+User documentation
