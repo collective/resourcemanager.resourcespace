@@ -60,6 +60,16 @@
       class=".search.ResourceSpaceCopy"
       />
 
+  <subscriber
+    for="plone.app.contenttypes.interfaces.IImage
+         zope.lifecycleevent.interfaces.IObjectAddedEvent"
+    handler=".events.upload_image"
+    />
+  <subscriber
+    for="plone.app.contenttypes.interfaces.IImage
+         zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+    handler=".events.upload_image"
+    />
   <!-- -*- extra stuff goes here -*- -->
 
 </configure>
