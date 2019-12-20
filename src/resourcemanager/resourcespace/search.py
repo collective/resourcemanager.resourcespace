@@ -16,7 +16,7 @@ class ResourceSpaceSearch(BrowserView):
     def __init__(self, context, request):
         self.context = context
         self.request = request
-        reg_prefix = 'resourcemanager.resourcespace.browser.settings.IResourceSpaceKeys'
+        reg_prefix = 'resourcemanager.resourcespace.settings.IResourceSpaceKeys'
         self.rs_url = context.portal_registry['{0}.rs_url'.format(reg_prefix)]
         self.rs_user = context.portal_registry['{0}.rs_user'.format(reg_prefix)]
         self.rs_private_key = context.portal_registry['{0}.rs_private_key'.format(reg_prefix)]

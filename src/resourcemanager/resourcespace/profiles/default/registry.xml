@@ -3,6 +3,6 @@
     xmlns:i18n="http://xml.zope.org/namespaces/i18n"
     i18n:domain="resourcemanager.resourcespace">
 
-    <records interface="resourcemanager.resourcespace.browser.settings.IResourceSpaceKeys"/>
+    <records interface="resourcemanager.resourcespace.settings.IResourceSpaceKeys"/>
 
 </registry>
