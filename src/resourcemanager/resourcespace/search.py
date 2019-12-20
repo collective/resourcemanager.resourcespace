@@ -8,6 +8,8 @@ from plone.namedfile.file import NamedBlobImage
 from Products.Five.browser import BrowserView
 from zope.schema import ValidationError
 
+from collective.resourcemanager.browser import search
+
 
 class ResourceSpaceSearch(BrowserView):
     """Search ResourceSpace
@@ -73,6 +75,12 @@ class ResourceSpaceSearch(BrowserView):
         self.image_urls = self.query_resourcespace(query2)
         if not self.image_urls and not self.messages:
             self.messages.append("No images found")
+        existing = []
+        if self.context.portal_type == 'Folder':
+            existing = search.existing_copies(self.context)
+        for item in self.image_metadata:
+            self.image_metadata[item]['url'] = self.image_urls.get(item)
+            self.image_metadata[item]['exists'] = self.image_urls.get(item) in existing
         if form.get('type', '') == 'json':
             return json.dumps({
                 'search_context': self.search_context,
@@ -95,30 +103,24 @@ class ResourceSpaceCopy(BrowserView):
     def __init__(self, context, request):
         self.context = context
         self.request = request
-        # reg_prefix = 'collective.resourcemanager.browser.settings.IResourceSpaceKeys'
-        # self.rs_url = context.portal_registry['{0}.rs_url'.format(reg_prefix)]
-        # self.rs_user = context.portal_registry['{0}.rs_user'.format(reg_prefix)]
-        # self.rs_private_key = context.portal_registry['{0}.rs_private_key'.format(reg_prefix)]
 
     def __call__(self):
         img_url = self.request.form.get('image')
         if not img_url:
             return "Image ID not found"
-        # rs_search = ResourceSpaceSearch(self.context, self.request)
-        # query = '&function=create_resource&param1=1&param2=0'
-        # resource_id = rs_search.query_resourcespace(query)
-        response = requests.get(img_url)
+        img_response = requests.get(img_url)
         try:
             Image.open(requests.get(img_url, stream=True).raw)
         except OSError as e:
             raise ValidationError(
                 '{}\n ResourceSpace url may be invalid'.format(e))
         blob = NamedBlobImage(
-            data=response.content)
+            data=img_response.content)
         new_image = api.content.create(
             type='Image',
             image=blob,
             container=self.context,
-            title='Test'  # set using metadata
+            title=self.request.form.get('title'),
+            external_url=img_url,
         )
         return "Image copied to {}".format(new_image.absolute_url())
