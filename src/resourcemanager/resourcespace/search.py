@@ -103,6 +103,7 @@ class ResourceSpaceCopy(BrowserView):
     def __init__(self, context, request):
         self.context = context
         self.request = request
+        self.rssearch = ResourceSpaceSearch(context, request)
 
     def __call__(self):
         img_url = self.request.form.get('image')
@@ -116,11 +117,17 @@ class ResourceSpaceCopy(BrowserView):
                 '{}\n ResourceSpace url may be invalid'.format(e))
         blob = NamedBlobImage(
             data=img_response.content)
+        query = '&function=get_resource_field_data&param1={0}'.format(
+            self.request.form.get('id')
+        )
+        response = self.rssearch.query_resourcespace(query)
+        img_metadata = {x['title']: x['value'] for x in response}
         new_image = api.content.create(
             type='Image',
             image=blob,
             container=self.context,
             title=self.request.form.get('title'),
             external_url=img_url,
+            description=str(img_metadata),
         )
         return "Image copied to {}".format(new_image.absolute_url())
