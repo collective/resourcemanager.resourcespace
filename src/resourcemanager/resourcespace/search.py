@@ -22,7 +22,7 @@ class ResourceSpaceSearch(BrowserView):
         self.rs_url = context.portal_registry['{0}.rs_url'.format(reg_prefix)]
         self.rs_user = context.portal_registry['{0}.rs_user'.format(reg_prefix)]
         self.rs_private_key = context.portal_registry['{0}.rs_private_key'.format(reg_prefix)]
-        self.image_urls = []
+        self.image_metadata = []
         self.messages = []
         self.search_context = 'rs-search'
 
@@ -67,22 +67,20 @@ class ResourceSpaceSearch(BrowserView):
         response = self.query_resourcespace(query)
         self.num_results = len(response)
         self.image_metadata = {x['ref']: x for x in response[:100]}
-        # do I really need image_urls?
-        self.image_urls = {x: self.image_metadata[x]['url_pre'] for x in self.image_metadata}
-        if not self.image_urls and not self.messages:
+        if not self.image_metadata and not self.messages:
             self.messages.append("No images found")
         existing = []
         if self.context.portal_type == 'Folder':
             existing = search.existing_copies(self.context)
         for item in self.image_metadata:
-            self.image_metadata[item]['url'] = self.image_urls.get(item)
-            self.image_metadata[item]['exists'] = self.image_urls.get(item) in existing
+            url = self.image_metadata[item]['url_pre']
+            self.image_metadata[item]['url'] = url
+            self.image_metadata[item]['exists'] = url in existing
         if form.get('type', '') == 'json':
             return json.dumps({
                 'search_context': self.search_context,
                 'errors': self.messages,
                 'metadata': self.image_metadata,
-                'urls': self.image_urls,
                 })
         return self.template()
 
@@ -101,20 +99,37 @@ class ResourceSpaceCopy(BrowserView):
         self.request = request
         self.rssearch = ResourceSpaceSearch(context, request)
 
-    def __call__(self):
-        img_url = self.request.form.get('image')
-        if not img_url:
-            return "Image ID not found"
+    def valid_image(self, img_url):
+        # test if image url is valid
         img_response = requests.get(img_url)
+        if img_response.status_code != 200:
+            return None
         try:
             Image.open(requests.get(img_url, stream=True).raw)
-        except OSError as e:
-            raise ValidationError(
-                '{}\n ResourceSpace url may be invalid'.format(e))
+        except OSError:
+            return None
+        return img_response
+
+    def __call__(self):
+        img_id = self.request.form.get('id')
+        img_url = self.request.form.get('image')  # preview size
+        if not img_url:
+            return "Image ID not found"
+        # get original image size
+        sizes_query = '&function=get_resource_path&param1={0}&param2=false&param3='.format(
+            img_id
+        )
+        img_orig_url = self.rssearch.query_resourcespace(sizes_query)
+        for size in [img_orig_url, img_url]:
+            img_response = self.valid_image(size)
+            if img_response:
+                break
+        if not img_response:
+            return "Unable to find a valid image url"
         blob = NamedBlobImage(
             data=img_response.content)
         query = '&function=get_resource_field_data&param1={0}'.format(
-            self.request.form.get('id')
+            img_id
         )
         response = self.rssearch.query_resourcespace(query)
         img_metadata = {x['title']: x['value'] for x in response}
@@ -123,7 +138,7 @@ class ResourceSpaceCopy(BrowserView):
             image=blob,
             container=self.context,
             title=self.request.form.get('title'),
-            external_url=img_url,
+            external_url=img_url,  # use preview size
             description=str(img_metadata),
         )
         return "Image copied to {}".format(new_image.absolute_url())
