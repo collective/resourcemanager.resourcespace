@@ -61,18 +61,14 @@ class ResourceSpaceSearch(BrowserView):
             search_term = urllib.parse.quote_plus(form['rs_search'])
         else:
             search_term = urllib.parse.quote_plus('!' + browse_term)
-        query = '&function=do_search&param1={0}&param2=1'.format(
+        query = '&function=search_get_previews&param1={0}&param2=1&param8=pre'.format(
             search_term
         )
         response = self.query_resourcespace(query)
-        self.image_metadata = {x['ref']: x for x in response}
         self.num_results = len(response)
-        media_ids = [x['ref'] for x in response[:100]]
-        # build new query to return image urls
-        query2 = '&function=get_resource_path&param1=%5B{0}%5D&param2=false&param3=scr'.format(
-            ','.join(media_ids)
-        )
-        self.image_urls = self.query_resourcespace(query2)
+        self.image_metadata = {x['ref']: x for x in response[:100]}
+        # do I really need image_urls?
+        self.image_urls = {x: self.image_metadata[x]['url_pre'] for x in self.image_metadata}
         if not self.image_urls and not self.messages:
             self.messages.append("No images found")
         existing = []
