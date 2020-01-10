@@ -1,12 +1,12 @@
 import hashlib
 import json
 import requests
+from requests import exceptions as exc
 import urllib.parse
 from PIL import Image
 from plone import api
 from plone.namedfile.file import NamedBlobImage
 from Products.Five.browser import BrowserView
-from zope.schema import ValidationError
 
 from collective.resourcemanager.browser import search
 
@@ -32,7 +32,6 @@ class ResourceSpaceSearch(BrowserView):
         key_query = self.rs_private_key + user_query
         hash.update(key_query.encode('utf-8'))
         request_url = self.rs_url + '?' + user_query + '&sign=' + hash.hexdigest()
-        exc = requests.exceptions
         try:
             response = requests.get(request_url, timeout=5)
         except (exc.ConnectTimeout, exc.ConnectionError) as e:
@@ -101,7 +100,10 @@ class ResourceSpaceCopy(BrowserView):
 
     def valid_image(self, img_url):
         # test if image url is valid
-        img_response = requests.get(img_url)
+        try:
+            img_response = requests.get(img_url)
+        except (exc.ConnectTimeout, exc.ConnectionError):
+            return None
         if img_response.status_code != 200:
             return None
         try:
@@ -149,5 +151,6 @@ class ResourceSpaceCopy(BrowserView):
                 external_url=img_url,  # use preview size
                 description=str(img_metadata),
             )
-            return "Image copied to {}".format(new_image.absolute_url())
+            return "Image copied to <a href='{0}/view'>{0}</a>".format(
+                new_image.absolute_url())
         return "No action taken, did you pass in a function?"
