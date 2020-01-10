@@ -108,9 +108,14 @@ class ResourceSpaceCopy(BrowserView):
             Image.open(requests.get(img_url, stream=True).raw)
         except OSError:
             return None
-        return img_response
+        return (img_response, img_url)
 
     def __call__(self):
+        """Return original image size
+           If function is 'geturl', return the image url
+           If function is 'copyimage', copy image into the current folder
+        """
+        img_function = self.request.form.get('function')
         img_id = self.request.form.get('id')
         img_url = self.request.form.get('image')  # preview size
         if not img_url:
@@ -126,19 +131,23 @@ class ResourceSpaceCopy(BrowserView):
                 break
         if not img_response:
             return "Unable to find a valid image url"
-        blob = NamedBlobImage(
-            data=img_response.content)
-        query = '&function=get_resource_field_data&param1={0}'.format(
-            img_id
-        )
-        response = self.rssearch.query_resourcespace(query)
-        img_metadata = {x['title']: x['value'] for x in response}
-        new_image = api.content.create(
-            type='Image',
-            image=blob,
-            container=self.context,
-            title=self.request.form.get('title'),
-            external_url=img_url,  # use preview size
-            description=str(img_metadata),
-        )
-        return "Image copied to {}".format(new_image.absolute_url())
+        if img_function == 'geturl':
+            return img_response[1]
+        if img_function == 'copyimage':
+            blob = NamedBlobImage(
+                data=img_response[0].content)
+            query = '&function=get_resource_field_data&param1={0}'.format(
+                img_id
+            )
+            response = self.rssearch.query_resourcespace(query)
+            img_metadata = {x['title']: x['value'] for x in response}
+            new_image = api.content.create(
+                type='Image',
+                image=blob,
+                container=self.context,
+                title=self.request.form.get('title'),
+                external_url=img_url,  # use preview size
+                description=str(img_metadata),
+            )
+            return "Image copied to {}".format(new_image.absolute_url())
+        return "No action taken, did you pass in a function?"
