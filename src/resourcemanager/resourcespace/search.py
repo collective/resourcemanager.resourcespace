@@ -1,5 +1,6 @@
 import hashlib
 import json
+import math
 import requests
 from requests import exceptions as exc
 import urllib.parse
@@ -52,6 +53,10 @@ class ResourceSpaceSearch(BrowserView):
         form = self.request.form
         search_term = form.get('rs_search')
         browse_term = form.get('rs_browse')
+        batch = int(form.get('batch'))
+        b_size = 20
+        b_start = (batch - 1) * b_size + 1
+        b_end = b_start + b_size
         self.search_context = self.request._steps[-1]
         if not form or not(search_term or browse_term):
             return self.template()
@@ -64,8 +69,8 @@ class ResourceSpaceSearch(BrowserView):
             search_term
         )
         response = self.query_resourcespace(query)
-        self.num_results = len(response)
-        self.image_metadata = {x['ref']: x for x in response[:100]}
+        num_results = len(response)
+        self.image_metadata = {x['ref']: x for x in response[b_start-1:b_end-1]}
         if not self.image_metadata and not self.messages:
             self.messages.append("No images found")
         existing = []
@@ -80,6 +85,10 @@ class ResourceSpaceSearch(BrowserView):
                 'search_context': self.search_context,
                 'errors': self.messages,
                 'metadata': self.image_metadata,
+                'num_results': num_results,
+                'b_start': b_start,
+                'b_end': num_results > b_end and b_end or num_results,
+                'num_batches': math.ceil(num_results / b_size),
                 })
         return self.template()
 
