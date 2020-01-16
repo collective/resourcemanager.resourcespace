@@ -4,7 +4,7 @@ resourcemanager.resourcespace
 
 This add-on is meant to work with collective.resourcemanager.
 
-See the collective.resourcemanager documentation for more details
+See the collective.resourcemanager documentation for more details: https://github.com/collective/collective.resourcemanager
 
 
 Installation
@@ -23,6 +23,7 @@ Install the collective.resourcemanager and resourcemanager.resourcespace package
 Run ``bin/buildout``, and start the instance.
 
 Within Plone:
+
 * Install the add-ons in the Add-ons Control Panel
 * Go to the ResourceSpace Keys Control Panel
 * Enter your API keys and information.
