@@ -77,7 +77,7 @@ class ResourceSpaceSearch(BrowserView):
         if self.context.portal_type == 'Folder':
             existing = search.existing_copies(self.context)
         for item in self.image_metadata:
-            url = self.image_metadata[item]['url_pre']
+            url = self.image_metadata[item].get('url_pre', 'none')
             self.image_metadata[item]['url'] = url
             self.image_metadata[item]['exists'] = url in existing
         if form.get('type', '') == 'json':
@@ -89,6 +89,7 @@ class ResourceSpaceSearch(BrowserView):
                 'b_start': b_start,
                 'b_end': num_results > b_end and b_end or num_results,
                 'num_batches': math.ceil(num_results / b_size),
+                'curr_batch': batch,
                 })
         return self.template()
 
