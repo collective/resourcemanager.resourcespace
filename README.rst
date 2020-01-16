@@ -1,54 +1,38 @@
-.. This README is meant for consumption by humans and pypi. Pypi can render rst files so please do not use Sphinx features.
-   If you want to learn more about writing documentation, please check out: http://docs.plone.org/about/documentation_styleguide.html
-   This text does not appear on pypi or github. It is a comment.
-
 =============================
 resourcemanager.resourcespace
 =============================
 
-Tell me what your product does
+This add-on is meant to work with collective.resourcemanager.
 
-Features
---------
-
-- Can be bullet points
-
-
-Examples
---------
-
-This add-on can be seen in action at the following sites:
-- Is there a page on the internet where everybody can see the features?
-
-
-Documentation
--------------
-
-Full documentation for end users can be found in the "docs" folder, and is also available online at http://docs.plone.org/foo/bar
-
-
-Translations
-------------
-
-This product has been translated into
-
-- Klingon (thanks, K'Plai)
+See the collective.resourcemanager documentation for more details
 
 
 Installation
 ------------
 
-Install resourcemanager.resourcespace by adding it to your buildout::
+Install the collective.resourcemanager and resourcemanager.resourcespace packages by adding them to your buildout::
 
-    [buildout]
-
+    [instance]
     ...
-
     eggs =
+        ...
+        collective.resourcemanager
         resourcemanager.resourcespace
 
 
-and then running ``bin/buildout``
+Run ``bin/buildout``, and start the instance.
+
+Within Plone:
+* Install the add-ons in the Add-ons Control Panel
+* Go to the ResourceSpace Keys Control Panel
+* Enter your API keys and information.
+  The field descriptions tell you how to find the necessary information in ResourceSpace
+
+Use
+---
+
+Searching ResourceSpace within Plone will show you the available collections by default.
+You can browse the collections, or enter a search term to find images.
 
 
 Contribute
@@ -56,14 +40,6 @@ Contribute
 
 - Issue Tracker: https://github.com/collective/resourcemanager.resourcespace/issues
 - Source Code: https://github.com/collective/resourcemanager.resourcespace
-- Documentation: https://docs.plone.org/foo/bar
-
-
-Support
--------
-
-If you are having issues, please let us know.
-We have a mailing list located at: project@example.com
 
 
 License
