@@ -52,19 +52,24 @@ class ResourceSpaceSearch(BrowserView):
     def __call__(self):
         form = self.request.form
         search_term = form.get('rs_search')
-        browse_term = form.get('rs_browse')
         batch = int(form.get('batch'))
         b_size = 20
         b_start = (batch - 1) * b_size + 1
         b_end = b_start + b_size
         self.search_context = self.request._steps[-1]
-        if not form or not(search_term or browse_term):
+        if not form or not search_term:
+            if form.get('type', '') == 'json':
+                self.messages.append('There has been an error in the form')
+                return json.dumps({
+                    'search_context': self.search_context,
+                    'errors': self.messages,
+                    'metadata': self.image_metadata,
+                    })
             return self.template()
         # do the search based on term or collection name
-        if search_term:
-            search_term = urllib.parse.quote_plus(form['rs_search'])
-        else:
-            search_term = urllib.parse.quote_plus('!' + browse_term)
+        if not search_term:
+            self.messages.append('Missing search term')
+        search_term = urllib.parse.quote_plus(form['rs_search'])
         query = '&function=search_get_previews&param1={0}&param2=1&param8=pre'.format(
             search_term
         )
