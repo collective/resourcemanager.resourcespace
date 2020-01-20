@@ -65,6 +65,7 @@ class ResourceSpaceSearch(BrowserView):
                 'image_size': '',
                 'url': item.get('url_pre', 'none'),
                 'metadata': item,
+                'additional_details': '',
             }
         return images
         # {x['ref']: x for x in response[b_start-1:b_end-1]}
@@ -114,6 +115,7 @@ class ResourceSpaceSearch(BrowserView):
                 'b_end': num_results > b_end and b_end or num_results,
                 'num_batches': math.ceil(num_results / b_size),
                 'curr_batch': batch,
+                'copy_url': 'copy-img-from-rs',
                 })
         return self.template()
 
