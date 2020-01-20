@@ -16,6 +16,8 @@ class ResourceSpaceSearch(BrowserView):
     """Search ResourceSpace
     """
 
+    search_id = 'rs-search'
+
     def __init__(self, context, request):
         self.context = context
         self.request = request
@@ -49,6 +51,24 @@ class ResourceSpaceSearch(BrowserView):
             ))
             return []
 
+    def parse_metadata(self, response):
+        """Prep metadata dictionary for search results view
+        """
+        images = {}
+        for item in response:
+            item_id = item['ref']
+            images[item_id] = {
+                'title': item['field8'],
+                'id': item_id,
+                'creation_date': item['creation_date'],
+                'file_extension': item['file_extension'],
+                'image_size': '',
+                'url': item.get('url_pre', 'none'),
+                'metadata': item,
+            }
+        return images
+        # {x['ref']: x for x in response[b_start-1:b_end-1]}
+
     def __call__(self):
         form = self.request.form
         search_term = form.get('rs_search')
@@ -75,15 +95,14 @@ class ResourceSpaceSearch(BrowserView):
         )
         response = self.query_resourcespace(query)
         num_results = len(response)
-        self.image_metadata = {x['ref']: x for x in response[b_start-1:b_end-1]}
+        self.image_metadata = self.parse_metadata(response[b_start-1:b_end-1])
         if not self.image_metadata and not self.messages:
             self.messages.append("No images found")
         existing = []
         if self.context.portal_type == 'Folder':
             existing = search.existing_copies(self.context)
         for item in self.image_metadata:
-            url = self.image_metadata[item].get('url_pre', 'none')
-            self.image_metadata[item]['url'] = url
+            url = self.image_metadata[item]['url']
             self.image_metadata[item]['exists'] = url in existing
         if form.get('type', '') == 'json':
             return json.dumps({
