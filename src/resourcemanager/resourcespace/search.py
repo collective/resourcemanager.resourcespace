@@ -8,10 +8,13 @@ from PIL import Image
 from plone import api
 from plone.namedfile.file import NamedBlobImage
 from Products.Five.browser import BrowserView
+from zope.interface import implementer
 
 from collective.resourcemanager.browser import search
+from collective.resourcemanager.interfaces import ICollectiveResourcemanagerLayer
 
 
+@implementer(ICollectiveResourcemanagerLayer)
 class ResourceSpaceSearch(BrowserView):
     """Search ResourceSpace
     """
