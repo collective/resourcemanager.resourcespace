@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from plone import api
 
 from resourcemanager.resourcespace.search import ResourceSpaceSearch
 
@@ -14,10 +15,12 @@ def upload_image(obj, event):
     # param7 will be for metadata
     query = '&function=create_resource&param1=1&param2=0'
     resource_id = rs_search.query_resourcespace(query)
+    portal_url = api.portal.get().absolute_url()
+    item_path = '/'.join(obj.getPhysicalPath()[2:])
 
     rs_search.query_resourcespace(
         '&function=upload_file_by_url&param1={0}&param5={1}'.format(
-            resource_id, 'http://0c1d467e.ngrok.io' + '/'.join(obj.getPhysicalPath())
+            resource_id, portal_url + '/' + item_path
         ))
     # put into test collection for now
     rs_search.query_resourcespace(
