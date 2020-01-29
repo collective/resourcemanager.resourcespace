@@ -1,4 +1,5 @@
 import os
+import transaction
 from datetime import datetime
 from plone import api
 
@@ -17,6 +18,7 @@ def upload_image(obj, event):
     resource_id = rs_search.query_resourcespace(query)
     portal_url = api.portal.get().absolute_url()
     item_path = '/'.join(obj.getPhysicalPath()[2:])
+    transaction.commit()
 
     rs_search.query_resourcespace(
         '&function=upload_file_by_url&param1={0}&param5={1}'.format(
