@@ -21,6 +21,17 @@ class IResourceSpaceKeys(Interface):
             Users screen, you can find a user's API key when you edit them.",
     )
 
+    upload_to_rs = schema.Bool(
+        title=u"Upload all images to ResourceSpace",
+        description=u"If selected, any images added into Plone will be \
+            uploaded to ResourceSpace"
+    )
+    rs_collection = schema.Int(
+        title=u"Collection ID for Uploads",
+        description=u"Specify a collection ID for uploaded images to be \
+            added to"
+    )
+
 
 class ResourceSpaceKeysEditForm(RegistryEditForm):
     """
