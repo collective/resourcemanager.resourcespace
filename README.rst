@@ -28,6 +28,10 @@ Within Plone:
 * Go to the ResourceSpace Keys Control Panel
 * Enter your API keys and information.
   The field descriptions tell you how to find the necessary information in ResourceSpace
+* 'Upload all images to ResourceSpace'. With this option selected, any images uploaded into Plone
+  will also be uploaded to ResourceSpace.
+* 'Collection ID for Uploads': If you are uploading images to ResourceSpace, you can specify
+  a collection for all the images to be added to (not required).
 
 Use
 ---
