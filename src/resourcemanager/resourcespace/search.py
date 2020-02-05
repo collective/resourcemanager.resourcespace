@@ -42,7 +42,7 @@ class ResourceSpaceSearch(BrowserView):
         hash.update(key_query.encode('utf-8'))
         request_url = self.rs_url + '?' + user_query + '&sign=' + hash.hexdigest()
         try:
-            response = requests.get(request_url, timeout=5)
+            response = requests.get(request_url, timeout=15)
         except (exc.ConnectTimeout, exc.ConnectionError) as e:
             self.messages.append(str(e))
             logging.info(str(e))
