@@ -1,5 +1,6 @@
 import hashlib
 import json
+import logging
 import math
 import requests
 from requests import exceptions as exc
@@ -12,6 +13,8 @@ from zope.interface import implementer
 
 from collective.resourcemanager.browser import search
 from collective.resourcemanager.interfaces import ICollectiveResourcemanagerLayer
+
+logger = logging.getLogger("ResourceSpace")
 
 
 @implementer(ICollectiveResourcemanagerLayer)
@@ -42,9 +45,11 @@ class ResourceSpaceSearch(BrowserView):
             response = requests.get(request_url, timeout=5)
         except (exc.ConnectTimeout, exc.ConnectionError) as e:
             self.messages.append(str(e))
+            logging.info(str(e))
             return []
         if response.status_code != 200:
             self.messages.append(response.reason)
+            logging.info(response.reason)
             return []
         try:
             return response.json()
@@ -52,6 +57,7 @@ class ResourceSpaceSearch(BrowserView):
             self.messages.append('The json returned from {0} is not valid'.format(
                 user_query
             ))
+            logging.info('invalid json')
             return []
 
     def parse_metadata(self, response):
@@ -71,7 +77,6 @@ class ResourceSpaceSearch(BrowserView):
                 'additional_details': '',
             }
         return images
-        # {x['ref']: x for x in response[b_start-1:b_end-1]}
 
     def __call__(self):
         form = self.request.form
@@ -106,8 +111,8 @@ class ResourceSpaceSearch(BrowserView):
         if self.context.portal_type == 'Folder':
             existing = search.existing_copies(self.context)
         for item in self.image_metadata:
-            url = self.image_metadata[item]['url']
-            self.image_metadata[item]['exists'] = url in existing
+            id = 'rs-{}'.format(self.image_metadata[item]['id'])
+            self.image_metadata[item]['exists'] = id in existing
         if form.get('type', '') == 'json':
             return json.dumps({
                 'search_context': self.search_context,
@@ -187,7 +192,7 @@ class ResourceSpaceCopy(BrowserView):
                 image=blob,
                 container=self.context,
                 title=self.request.form.get('title'),
-                external_url=img_url,  # use preview size
+                external_img_id='rs-{}'.format(img_id),
                 description=str(img_metadata),
             )
             return "Image copied to <a href='{0}/view'>{0}</a>".format(
