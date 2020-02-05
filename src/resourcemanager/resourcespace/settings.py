@@ -40,7 +40,7 @@ class ResourceSpaceKeysEditForm(RegistryEditForm):
     Define form logic
     """
     schema = IResourceSpaceKeys
-    label = u"ResourceSpace Keys"
+    label = u"ResourceSpace Settings"
 
 
 class ResourceSpaceKeysView(ControlPanelFormWrapper):

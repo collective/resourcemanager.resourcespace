@@ -5,7 +5,7 @@
     i18n:domain="resourcemanager.resourcespace">
 
     <configlet
-        title="ResourceSpace Keys"
+        title="ResourceSpace Settings"
         action_id="ResourceSpaceKeys"
         appId=""
         category="Products"
