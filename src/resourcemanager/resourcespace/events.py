@@ -11,8 +11,8 @@ def upload_image(obj, event):
     """When a Plone image is modified, sync changes to RS
        if it is a RS image
     """
-    exid = obj.external_img_id
-    if exid and not exid.startswith('rs-'):
+    resource_id = obj.external_img_id
+    if resource_id and not resource_id.startswith('rs-'):
         return
     registry = api.portal.get_tool('portal_registry')
     reg_prefix = 'resourcemanager.resourcespace.settings.IResourceSpaceKeys'
@@ -22,8 +22,8 @@ def upload_image(obj, event):
     rs_collection = registry['{0}.rs_collection'.format(reg_prefix)]
 
     rs_search = ResourceSpaceSearch(obj, obj.REQUEST)
-    resource_id = obj.external_img_id.replace('rs-', '')
     if resource_id:
+        resource_id = resource_id.replace('rs-', '')
         logger.info("Resource ID #{} will be updated".format(resource_id))
     else:
         # param7 will be for metadata
