@@ -108,8 +108,7 @@ class ResourceSpaceSearch(BrowserView):
         if not self.image_metadata and not self.messages:
             self.messages.append("No images found")
         existing = []
-        if self.context.portal_type == 'Folder':
-            existing = search.existing_copies(self.context)
+        existing = search.existing_copies(self.context)
         for item in self.image_metadata:
             id = 'rs-{}'.format(self.image_metadata[item]['id'])
             self.image_metadata[item]['exists'] = id in existing
@@ -133,7 +132,7 @@ class ResourceSpaceSearch(BrowserView):
         return response
 
 
-class ResourceSpaceCopy(BrowserView):
+class ResourceSpaceCopy(search.ResourceCopy):
     """Copy selected media to the current folder
     """
 
@@ -195,7 +194,7 @@ class ResourceSpaceCopy(BrowserView):
             new_image = api.content.create(
                 type='Image',
                 image=blob,
-                container=self.context,
+                container=search.get_container(self.context),
                 title=self.request.form.get('title'),
                 external_img_id='rs-{}'.format(img_id),
                 resource_metadata='\n'.join(img_metadata),
