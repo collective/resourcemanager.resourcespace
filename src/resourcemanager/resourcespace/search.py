@@ -107,7 +107,6 @@ class ResourceSpaceSearch(BrowserView):
         self.image_metadata = self.parse_metadata(response[b_start-1:b_end-1])
         if not self.image_metadata and not self.messages:
             self.messages.append("No images found")
-        existing = []
         existing = search.existing_copies(self.context)
         for item in self.image_metadata:
             id = 'rs-{}'.format(self.image_metadata[item]['id'])
