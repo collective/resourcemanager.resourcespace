@@ -182,18 +182,23 @@ class ResourceSpaceCopy(BrowserView):
         if img_function == 'copyimage':
             blob = NamedBlobImage(
                 data=img_response[0].content)
-            query = '&function=get_resource_field_data&param1={0}'.format(
+            query1 = '&function=get_resource_field_data&param1={0}'.format(
                 img_id
             )
-            response = self.rssearch.query_resourcespace(query)
-            img_metadata = {x['title']: x['value'] for x in response}
+            response1 = self.rssearch.query_resourcespace(query1)
+            query2 = '&function=get_resource_data&param1={0}'.format(
+                img_id
+            )
+            response2 = self.rssearch.query_resourcespace(query2)
+            img_metadata = ['{0}: {1}'.format(x['title'], x['value']) for x in response1]
+            img_metadata = img_metadata + ['{0}: {1}'.format(x, response2[x]) for x in response2]
             new_image = api.content.create(
                 type='Image',
                 image=blob,
                 container=self.context,
                 title=self.request.form.get('title'),
                 external_img_id='rs-{}'.format(img_id),
-                description=str(img_metadata),
+                resource_metadata='\n'.join(img_metadata),
             )
             return "Image copied to <a href='{0}/view'>{0}</a>".format(
                 new_image.absolute_url())
