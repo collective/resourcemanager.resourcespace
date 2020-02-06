@@ -57,7 +57,7 @@ class ResourceSpaceSearch(BrowserView):
             self.messages.append('The json returned from {0} is not valid'.format(
                 user_query
             ))
-            logging.info('invalid json')
+            logging.info('Response did not return json: {}'.format(response.text))
             return []
 
     def parse_metadata(self, response):
