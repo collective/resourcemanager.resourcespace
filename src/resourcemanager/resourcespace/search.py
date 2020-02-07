@@ -188,13 +188,14 @@ class ResourceSpaceCopy(search.ResourceCopy):
                 img_id
             )
             response2 = self.rssearch.query_resourcespace(query2)
-            img_metadata = ['{0}: {1}'.format(x['title'], x['value']) for x in response1]
-            img_metadata = img_metadata + ['{0}: {1}'.format(x, response2[x]) for x in response2]
+            img_metadata = {x['title']: x['value'] for x in response1}
+            img_metadata.update({x: response2[x] for x in response2})
             new_image = api.content.create(
                 type='Image',
                 image=blob,
                 container=search.get_container(self.context),
                 title=self.request.form.get('title'),
+                description=img_metadata['Caption'],
                 external_img_id='rs-{}'.format(img_id),
                 resource_metadata='\n'.join(img_metadata),
             )
