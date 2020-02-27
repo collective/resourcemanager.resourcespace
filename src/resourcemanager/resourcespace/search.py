@@ -176,7 +176,10 @@ class ResourceSpaceCopy(search.ResourceCopy):
         if not img_response:
             return "Unable to find a valid image url"
         if img_function == 'geturl':
-            return img_response[1]
+            return json.dumps({
+                'img_url': img_response[1],
+                'img_id': 'rs-{}'.format(img_id),
+                })
         if img_function == 'copyimage':
             blob = NamedBlobImage(
                 data=img_response[0].content)
