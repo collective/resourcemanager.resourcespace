@@ -2,9 +2,25 @@ import logging
 import transaction
 from plone import api
 
-from resourcemanager.resourcespace.search import ResourceSpaceSearch
+from resourcemanager.resourcespace.search import (
+    ResourceSpaceSearch,
+    ResourceSpaceCopy
+)
 
 logger = logging.getLogger("ResourceSpace")
+
+
+def fill_image_metadata(obj, resource_id):
+    rs_copy = ResourceSpaceCopy(obj, obj.REQUEST)
+    img_data = rs_copy.get_image_metadata(resource_id.replace('rs-', ''))
+    if not obj.title:
+        obj.title = img_data['title']
+    if not obj.description:
+        obj.description = img_data['description']
+    rs_data = img_data['resource_metadata']
+    data_str = '\n'.join(['{0}: {1}'.format(x, rs_data[x]) for x in rs_data])
+    obj.resource_metadata = data_str
+    obj.reindexObject()
 
 
 def upload_image(obj, event):
@@ -13,6 +29,8 @@ def upload_image(obj, event):
     """
     resource_id = obj.external_img_id
     if resource_id:
+        # if is an image from ResourceSpace, get the metadata
+        fill_image_metadata(obj, resource_id)
         return
     registry = api.portal.get_tool('portal_registry')
     reg_prefix = 'resourcemanager.resourcespace.settings.IResourceSpaceKeys'

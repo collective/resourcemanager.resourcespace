@@ -154,6 +154,24 @@ class ResourceSpaceCopy(search.ResourceCopy):
             return None
         return (img_response, img_url)
 
+    def get_image_metadata(self, img_id):
+        query1 = '&function=get_resource_field_data&param1={0}'.format(
+            img_id
+        )
+        response1 = self.rssearch.query_resourcespace(query1)
+        query2 = '&function=get_resource_data&param1={0}'.format(
+            img_id
+        )
+        response2 = self.rssearch.query_resourcespace(query2)
+        img_metadata = {x['title']: x['value'] for x in response1}
+        img_metadata.update({x: response2[x] for x in response2})
+        return {
+            'title': img_metadata['Title'],
+            'description': img_metadata['Caption'],
+            'resource_metadata': img_metadata,
+            'copyright': '',
+        }
+
     def __call__(self):
         """Return original image size
            If function is 'geturl', return the image url
@@ -183,24 +201,17 @@ class ResourceSpaceCopy(search.ResourceCopy):
         if img_function == 'copyimage':
             blob = NamedBlobImage(
                 data=img_response[0].content)
-            query1 = '&function=get_resource_field_data&param1={0}'.format(
-                img_id
-            )
-            response1 = self.rssearch.query_resourcespace(query1)
-            query2 = '&function=get_resource_data&param1={0}'.format(
-                img_id
-            )
-            response2 = self.rssearch.query_resourcespace(query2)
-            img_metadata = {x['title']: x['value'] for x in response1}
-            img_metadata.update({x: response2[x] for x in response2})
+            img_data = self.get_image_metadata(img_id)
+            rs_data = img_data['resource_metadata']
+            data_str = '\n'.join(['{0}: {1}'.format(x, rs_data[x]) for x in rs_data])
             new_image = api.content.create(
                 type='Image',
                 image=blob,
                 container=search.get_container(self.context),
                 title=self.request.form.get('title'),
-                description=img_metadata['Caption'],
+                description=img_data['description'],
                 external_img_id='rs-{}'.format(img_id),
-                resource_metadata='\n'.join(img_metadata),
+                resource_metadata=data_str,
             )
             return "Image copied to <a href='{0}/view'>{0}</a>".format(
                 new_image.absolute_url())
