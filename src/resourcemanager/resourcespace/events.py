@@ -30,7 +30,8 @@ def upload_image(obj, event):
     resource_id = obj.external_img_id
     if resource_id:
         # if is an image from ResourceSpace, get the metadata
-        fill_image_metadata(obj, resource_id)
+        if 'rs-' in resource_id:
+            fill_image_metadata(obj, resource_id)
         return
     registry = api.portal.get_tool('portal_registry')
     reg_prefix = 'resourcemanager.resourcespace.settings.IResourceSpaceKeys'
