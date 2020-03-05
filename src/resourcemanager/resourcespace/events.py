@@ -8,11 +8,11 @@ logger = logging.getLogger("ResourceSpace")
 
 
 def upload_image(obj, event):
-    """When a Plone image is modified, sync changes to RS
-       if it is a RS image
+    """When an image is uploaded into Plone,
+       upload it to RS
     """
     resource_id = obj.external_img_id
-    if resource_id and not resource_id.startswith('rs-'):
+    if resource_id:
         return
     registry = api.portal.get_tool('portal_registry')
     reg_prefix = 'resourcemanager.resourcespace.settings.IResourceSpaceKeys'
