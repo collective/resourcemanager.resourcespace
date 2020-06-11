@@ -36,8 +36,17 @@ def upload_image(obj, event):
     registry = api.portal.get_tool('portal_registry')
     reg_prefix = 'resourcemanager.resourcespace.settings.IResourceSpaceKeys'
     upload_to_rs = registry['{0}.upload_to_rs'.format(reg_prefix)]
+    
+    #check each upload instance if the image should be uploaded to rs
+    upload_this_to_rs = getattr(obj, 'upload_this_to_rs', None)
+
     if not upload_to_rs:
         return
+
+    if upload_this_to_rs is not None:
+        if not upload_this_to_rs:
+            return
+
     rs_collection = registry['{0}.rs_collection'.format(reg_prefix)]
 
     rs_search = ResourceSpaceSearch(obj, obj.REQUEST)
