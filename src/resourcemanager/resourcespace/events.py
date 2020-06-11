@@ -37,7 +37,7 @@ def upload_image(obj, event):
     reg_prefix = 'resourcemanager.resourcespace.settings.IResourceSpaceKeys'
     upload_to_rs = registry['{0}.upload_to_rs'.format(reg_prefix)]
     
-    #check each upload instance if the image should be uploaded to rs
+    #check each upload instance before uploading to RS
     upload_this_to_rs = getattr(obj, 'upload_this_to_rs', None)
 
     if not upload_to_rs:
