@@ -71,7 +71,7 @@
     name="Upload_to_rs"
     title="Upload to Resource Space?"
     description="Select to have this image uploaded to Resource Space"
-    provides=".behaviors.IUploadToRSBehavior"
+    provides=".behaviors.IUpload_ImageToRSBehavior"
     />
   
 </configure>
