@@ -67,4 +67,11 @@
     />
   <!-- -*- extra stuff goes here -*- -->
 
+  <plone:behavior
+    name="Upload_to_rs"
+    title="Upload to Resource Space?"
+    description="Upload Image to Resource Space?"
+    provides=".behaviors.IUpload_ImageToRSBehavior"
+    />
+  
 </configure>
