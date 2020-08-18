@@ -36,6 +36,10 @@ class ResourceSpaceSearch(BrowserView):
         self.search_context = 'rs-search'
 
     def query_resourcespace(self, query):
+        if self.rs_private_key is None:
+            logging.warning("ResourceSpace not configured.  Please visit site setup.")
+            return []
+        
         hash = hashlib.sha256()
         user_query = 'user={0}'.format(self.rs_user) + query
         key_query = self.rs_private_key + user_query
