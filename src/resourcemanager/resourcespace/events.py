@@ -13,10 +13,11 @@ logger = logging.getLogger("ResourceSpace")
 def fill_image_metadata(obj, resource_id):
     rs_copy = ResourceSpaceCopy(obj, obj.REQUEST)
     img_data = rs_copy.get_image_metadata(resource_id.replace('rs-', ''))
-    if not obj.title:
-        obj.title = img_data['title']
-    if not obj.description:
-        obj.description = img_data['description']
+    if img_data:
+        if not obj.title:
+            obj.title = img_data['title']
+        if not obj.description:
+            obj.description = img_data['description']
     rs_data = img_data['resource_metadata']
     data_str = '\n'.join(['{0}: {1}'.format(x, rs_data[x]) for x in rs_data])
     obj.resource_metadata = data_str
@@ -31,7 +32,10 @@ def upload_image(obj, event):
     if resource_id:
         # if is an image from ResourceSpace, get the metadata
         if 'rs-' in resource_id:
-            fill_image_metadata(obj, resource_id)
+            try:
+                fill_image_metadata(obj, resource_id)
+            except:
+                pass
         return
     registry = api.portal.get_tool('portal_registry')
     reg_prefix = 'resourcemanager.resourcespace.settings.IResourceSpaceKeys'
