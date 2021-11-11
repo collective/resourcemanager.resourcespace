@@ -159,6 +159,7 @@ class ResourceSpaceCopy(search.ResourceCopy):
         return (img_response, img_url)
 
     def get_image_metadata(self, img_id):
+        
         query1 = '&function=get_resource_field_data&param1={0}'.format(
             img_id
         )
@@ -167,14 +168,19 @@ class ResourceSpaceCopy(search.ResourceCopy):
             img_id
         )
         response2 = self.rssearch.query_resourcespace(query2)
-        img_metadata = {x['title']: x['value'] for x in response1}
-        img_metadata.update({x: response2[x] for x in response2})
-        return {
-            'title': img_metadata['Title'],
-            'description': img_metadata['Caption'],
-            'resource_metadata': img_metadata,
-            'copyright': '',
-        }
+
+        if response1 and response2:
+            img_metadata = {x['title']: x['value'] for x in response1}
+            img_metadata.update({x: response2[x] for x in response2})
+
+            return {
+                'title': img_metadata['Title'],
+                'description': img_metadata['Caption'],
+                'resource_metadata': img_metadata,
+                'copyright': '',
+            }
+        return {}
+
 
     def __call__(self):
         """Return original image size
