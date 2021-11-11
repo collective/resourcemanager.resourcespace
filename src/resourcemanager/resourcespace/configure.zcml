@@ -59,12 +59,6 @@
       permission="cmf.ModifyPortalContent"
       class=".search.ResourceSpaceCopy"
       />
-
-  <subscriber
-    for="plone.app.contenttypes.interfaces.IImage
-         zope.lifecycleevent.interfaces.IObjectAddedEvent"
-    handler=".events.upload_image"
-    />
   <!-- -*- extra stuff goes here -*- -->
 
   <plone:behavior
